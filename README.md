@@ -7,12 +7,12 @@ To assemble programs from `nasm_linux` directory install `nasm` assembler
 Then add following to your ~/.bashrc
 
 ```
-export YASM_INCLUDE='/path/to/include'
+export NASM_INCLUDE='/path/to/include'
 
-yasm_c() {
+nasm_c() {
   local file_name=$1;
   local file_name_no_ext=${file_name::-4}
-  nasm -f elf -I $YASM_INCLUDE $file_name && gcc "$file_name_no_ext.o" -o $file_name_no_ext -m32
+  nasm -f elf -I $NASM_INCLUDE $file_name && gcc "$file_name_no_ext.o" -o $file_name_no_ext -m32
   rm "$file_name_no_ext.o"
 }
 ```
