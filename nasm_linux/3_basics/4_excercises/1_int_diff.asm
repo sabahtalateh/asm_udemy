@@ -4,8 +4,8 @@
 ; Read Code
 ; ---------
 ;
-; Strange Calc
-; @@@@@@@@@@@@
+; Int Diff
+; @@@@@@@@
 ; 
 ; 0.    Assemble and run this program.
 ; 
@@ -22,6 +22,9 @@
 ;       
 ; 4.    Pick some random inputs and verify your predictions about what this
 ;       program does.
+;
+; 5.    Use the following input values: 0xffffffff and 0x1. Explain the output
+;       that you get back from the program.
 
 BITS 32
 
@@ -33,18 +36,20 @@ extern	exit
 ; ===============================================
 section .text
 
+; (a^2 - b^2)
+
 main:
-    ; The program begins here:
-    ; (a + b) * 2 + 1
     call    read_hex    
-    mov     edx,eax
-    call    read_hex    
-    add     eax,edx
-    add     eax,eax
-    inc     eax         
+    mul     eax
+    mov     esi,eax
+
+    call    read_hex
+    mul     eax
+    sub     esi,eax
+    mov     eax,esi
 
     call    print_eax   
 
-    ; Exit the process:
+    ; ; Exit the process:
 	push	0
 	call	exit
