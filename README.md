@@ -17,11 +17,11 @@ nasm_c() {
 }
 ```
 
-After it you can use `yasm_c file.asm` to assemble it.
+After it you can use `nasm_c file.asm` to assemble it.
 
 Also you can use all these commands separately
 
-`nasm -f elf -I $YASM_INCLUDE program.asm` 
+`nasm -f elf -I $NASM_INCLUDE program.asm` 
 and
 `gcc program.o -o program -m32`
 
