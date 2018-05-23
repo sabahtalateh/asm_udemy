@@ -7,7 +7,7 @@ To assemble programs from `nasm_linux` directory install `nasm` assembler
 Then add following to your ~/.bashrc
 
 ```
-export NASM_INCLUDE='/path/to/include'
+export NASM_INCLUDE='/path/to/include/' // slash at the end is mandatory
 
 nasm_c() {
   local file_name=$1;
