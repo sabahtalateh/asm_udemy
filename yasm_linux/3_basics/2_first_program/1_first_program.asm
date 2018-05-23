@@ -15,5 +15,5 @@ main:
     call    print_eax
 
     ; Exit the process:
-	push	0
-	call	exit
+    push	0
+    call	exit
