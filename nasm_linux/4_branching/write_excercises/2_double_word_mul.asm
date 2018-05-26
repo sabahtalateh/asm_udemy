@@ -57,7 +57,7 @@ repeat:
     mul     ecx
 
     cmp     eax,    esi
-    je     print
+    je      print
     jmp     continue
 
 

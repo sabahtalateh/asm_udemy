@@ -17,6 +17,15 @@ delim   db  "========",10,0
 
 section .text
 
+print_ebx:
+    pushad
+    push    ebx
+    push    hex_new
+    call    printf
+    add esp, 8
+    popad
+    ret
+
 ;prints value in eax in hex saves all registers
 print_eax:
     pushad
