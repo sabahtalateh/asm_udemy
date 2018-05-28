@@ -26,6 +26,15 @@ print_ebx:
     popad
     ret
 
+print_ebx_dec:
+    pushad
+    push    ebx
+    push    dec_new
+    call    printf
+    add esp, 8
+    popad
+    ret
+
 ;prints value in eax in hex saves all registers
 print_eax:
     pushad
@@ -45,12 +54,30 @@ print_edx:
     add esp, 8
     popad
     ret
+
+print_edi:
+    pushad
+    push    edi
+    push    hex_new
+    call    printf
+    add esp, 8
+    popad
+    ret
     
 ;prints value in eax in hex saves all registers
 print_eax_dec:
     pushad
     push    eax
     push    dec_new
+    call    printf
+    add esp, 8
+    popad
+    ret
+
+print_ecx:
+    pushad
+    push    ecx
+    push    hex_new
     call    printf
     add esp, 8
     popad
