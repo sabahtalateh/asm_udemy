@@ -1,0 +1,235 @@
+     1                                  ; Basic Assembly
+     2                                  ; ==============
+     3                                  ; 
+     4                                  ; Bitwise operations - Practical bit games
+     5                                  ; ----------------------------------------
+     6                                  ;
+     7                                  ; print_eax_binary
+     8                                  ; @@@@@@@@@@@@@@@@
+     9                                  ;
+    10                                  ; Meet the new subroutine print_eax_binary.
+    11                                  ; This subroutine prints eax to the screen as 32 separate bits.
+    12                                  ; It should be very useful for you in the following exercises.
+    13                                  ;
+    14                                  ; You can find the print_eax_binary subroutine inside training.inc. We have
+    15                                  ; not yet learned all that it needed to understand the contents of this
+    16                                  ; subroutine, but you can still look at it and try to understand how it
+    17                                  ; works. I assure you that in the end of this course you will be able to read
+    18                                  ; and understand all of the subroutines in this file.
+    19                                  ;
+    20                                  ; The following program reads a number from the console using the read_hex
+    21                                  ; subroutine, and then prints it back to the console, this time as binary
+    22                                  ; digits, using the print_eax_binary function.
+    23                                  ; 
+    24                                  ; 0.    Assemble and run this program.
+    25                                  ;       
+    26                                  ; 1.    Try to give the program different inputs, and look at the output. 
+    27                                  ;
+    28                                  ;       Make sure to try out negative inputs too (You may use the minus sign
+    29                                  ;       when giving the input)
+    30                                  ; 
+    31                                  
+    32                                  BITS 32
+    33                                  global main
+    34                                  
+    35                                  %include "training.s"
+    36                              <1> BITS 32
+    37                              <1> extern printf
+    38                              <1> extern exit
+    39                              <1> extern scanf
+    40                              <1> extern read
+    41                              <1> 
+    42                              <1> section .data 
+    43                              <1> 
+    44                              <1> ;Formats for printf and strings needed throughout
+    45 00000000 25780A00            <1> hex_new  db     "%x", 10, 0
+    46 00000004 257800              <1> hex_     db "%x", 0
+    47 00000007 256400              <1> dec_     db "%d", 0
+    48 0000000A 25640A00            <1> dec_new  db     "%d", 10, 0
+    49 0000000E 257300              <1> str_     db "%s", 0
+    50 00000011 0A00                <1> new_     db "", 10, 0
+    51 00000013 3D3D3D3D3D3D3D3D0A- <1> delim   db  "========",10,0
+    52 0000001C 00                  <1>
+    53                              <1> 
+    54                              <1> section .text
+    55                              <1> 
+    56                              <1> print_ebx:
+    57 00000000 60                  <1>     pushad
+    58 00000001 53                  <1>     push    ebx
+    59 00000002 68[00000000]        <1>     push    hex_new
+    60 00000007 E8(00000000)        <1>     call    printf
+    61 0000000C 83C408              <1>     add esp, 8
+    62 0000000F 61                  <1>     popad
+    63 00000010 C3                  <1>     ret
+    64                              <1> 
+    65                              <1> print_ebx_dec:
+    66 00000011 60                  <1>     pushad
+    67 00000012 53                  <1>     push    ebx
+    68 00000013 68[0A000000]        <1>     push    dec_new
+    69 00000018 E8(00000000)        <1>     call    printf
+    70 0000001D 83C408              <1>     add esp, 8
+    71 00000020 61                  <1>     popad
+    72 00000021 C3                  <1>     ret
+    73                              <1> 
+    74                              <1> ;prints value in eax in hex saves all registers
+    75                              <1> print_eax:
+    76 00000022 60                  <1>     pushad
+    77 00000023 50                  <1>     push    eax
+    78 00000024 68[00000000]        <1>     push    hex_new
+    79 00000029 E8(00000000)        <1>     call    printf
+    80 0000002E 83C408              <1>     add esp, 8
+    81 00000031 61                  <1>     popad
+    82 00000032 C3                  <1>     ret
+    83                              <1> 
+    84                              <1> ;prints value in eax in hex saves all registers
+    85                              <1> print_edx:
+    86 00000033 60                  <1>     pushad
+    87 00000034 52                  <1>     push    edx
+    88 00000035 68[00000000]        <1>     push    hex_new
+    89 0000003A E8(00000000)        <1>     call    printf
+    90 0000003F 83C408              <1>     add esp, 8
+    91 00000042 61                  <1>     popad
+    92 00000043 C3                  <1>     ret
+    93                              <1> 
+    94                              <1> print_edi:
+    95 00000044 60                  <1>     pushad
+    96 00000045 57                  <1>     push    edi
+    97 00000046 68[00000000]        <1>     push    hex_new
+    98 0000004B E8(00000000)        <1>     call    printf
+    99 00000050 83C408              <1>     add esp, 8
+   100 00000053 61                  <1>     popad
+   101 00000054 C3                  <1>     ret
+   102                              <1>     
+   103                              <1> ;prints value in eax in hex saves all registers
+   104                              <1> print_eax_dec:
+   105 00000055 60                  <1>     pushad
+   106 00000056 50                  <1>     push    eax
+   107 00000057 68[0A000000]        <1>     push    dec_new
+   108 0000005C E8(00000000)        <1>     call    printf
+   109 00000061 83C408              <1>     add esp, 8
+   110 00000064 61                  <1>     popad
+   111 00000065 C3                  <1>     ret
+   112                              <1> 
+   113                              <1> print_ecx:
+   114 00000066 60                  <1>     pushad
+   115 00000067 51                  <1>     push    ecx
+   116 00000068 68[00000000]        <1>     push    hex_new
+   117 0000006D E8(00000000)        <1>     call    printf
+   118 00000072 83C408              <1>     add esp, 8
+   119 00000075 61                  <1>     popad
+   120 00000076 C3                  <1>     ret
+   121                              <1> 
+   122                              <1> ;prints line splitter saves all registers
+   123                              <1> print_delimiter:
+   124 00000077 60                  <1>     pushad
+   125 00000078 B8[13000000]        <1>     mov eax, delim
+   126 0000007D 50                  <1>     push    eax
+   127 0000007E E8(00000000)        <1>     call    printf
+   128 00000083 83C404              <1>     add esp,4
+   129 00000086 61                  <1>     popad
+   130 00000087 C3                  <1>     ret
+   131                              <1> 
+   132                              <1> ;read ecx bytes into edi null terminate it all registers saved 
+   133                              <1> read_line:
+   134 00000088 60                  <1>     pushad
+   135 00000089 51                  <1>     push    ecx 
+   136 0000008A 57                  <1>     push    edi 
+   137 0000008B 6A00                <1>     push    0
+   138 0000008D E8(00000000)        <1>     call    read
+   139 00000092 83C40C              <1>     add esp, 12
+   140 00000095 31D2                <1>     xor edx, edx
+   141 00000097 C6040700            <1>     mov byte [edi+eax], 0
+   142 0000009B 61                  <1>     popad
+   143 0000009C C3                  <1>     ret
+   144                              <1> 
+   145                              <1> ; reads a hex value from stdin and stores it into eax ebx is not saved 
+   146                              <1> read_hex:
+   147 0000009D 55                  <1>     push    ebp
+   148 0000009E 89E5                <1>     mov     ebp, esp
+   149 000000A0 83EC04              <1>     sub     esp, 4
+   150                              <1>     ; Keep important registers.
+   151                              <1>     ; We can't use pusha here, because the result is inside eax.
+   152 000000A3 53                  <1>     push    ebx
+   153 000000A4 51                  <1>     push    ecx
+   154 000000A5 52                  <1>     push    edx
+   155                              <1> 
+   156 000000A6 8D5DFC              <1>     lea     ebx, [ebp-4]
+   157 000000A9 53                  <1>     push    ebx
+   158 000000AA 68[04000000]        <1>     push    hex_
+   159 000000AF E8(00000000)        <1>     call    scanf
+   160 000000B4 83C408              <1>     add     esp, 8
+   161 000000B7 8B03                <1>     mov     eax, [ebx]
+   162                              <1> 
+   163                              <1>     ; Restore registers:
+   164 000000B9 5A                  <1>     pop     edx
+   165 000000BA 59                  <1>     pop     ecx
+   166 000000BB 5B                  <1>     pop     ebx
+   167 000000BC C9                  <1>     leave
+   168 000000BD C3                  <1>     ret
+   169                              <1> 
+   170                              <1> ; reads a hex value from stdin and stores it into eax ebx is not saved 
+   171                              <1> read_dec:
+   172 000000BE 55                  <1>     push    ebp
+   173 000000BF 89E5                <1>     mov ebp, esp
+   174 000000C1 83EC04              <1>     sub esp, 4
+   175 000000C4 8D5DFC              <1>     lea ebx, [ebp-4]
+   176 000000C7 60                  <1>     pusha
+   177 000000C8 53                  <1>     push    ebx
+   178 000000C9 68[07000000]        <1>     push    dec_
+   179 000000CE E8(00000000)        <1>     call    scanf
+   180 000000D3 83C408              <1>     add esp, 8
+   181 000000D6 61                  <1>     popa
+   182 000000D7 8B03                <1>     mov eax, [ebx]
+   183 000000D9 C9                  <1>     leave
+   184 000000DA C3                  <1>     ret
+   185                              <1> 
+   186                              <1> ;prints string pointed to by esi saves all registers
+   187                              <1> print_str:
+   188 000000DB 60                  <1>     pushad
+   189 000000DC 56                  <1>     push    esi
+   190 000000DD E8(00000000)        <1>     call    printf
+   191 000000E2 83C404              <1>     add esp, 4
+   192 000000E5 61                  <1>     popad
+   193 000000E6 C3                  <1>     ret
+   194                              <1> 
+   195                              <1> ;prints eax in binary
+   196                              <1> print_eax_binary:
+   197 000000E7 60                  <1>     pushad
+   198 000000E8 B920000000          <1>     mov ecx,32 ; We print 32 digits.
+   199                              <1> 
+   200                              <1> .print_digit:
+   201 000000ED D1C0                <1>         rol eax,1
+   202 000000EF 89C2                <1>         mov edx,eax
+   203 000000F1 83E201              <1>         and edx,1
+   204                              <1> 
+   205 000000F4 51                  <1>         push ecx ; Keep ecx and eax.
+   206 000000F5 50                  <1>         push eax
+   207                              <1> 
+   208                              <1>         ; Print one digit:
+   209 000000F6 52                  <1>         push edx ; Digit to be printed.
+   210 000000F7 68[04000000]        <1>         push hex_ 
+   211 000000FC E8(00000000)        <1>         call printf
+   212 00000101 83C408              <1>         add esp,8
+   213                              <1> 
+   214 00000104 58                  <1>         pop eax ; Restore eax and ecx.
+   215 00000105 59                  <1>         pop ecx
+   216                              <1> 
+   217 00000106 E2E5                <1>         loop .print_digit
+   218 00000108 68[11000000]        <1>     push new_
+   219 0000010D E8(00000000)        <1>     call printf
+   220 00000112 83C404              <1>     add esp,4
+   221 00000115 61                  <1>     popad
+   222 00000116 C3                  <1>     ret
+   223                                  
+   224                                  ; ===============================================
+   225                                  section .text
+   226                                  
+   227                                  main:
+   228                                  
+   229 00000117 E881FFFFFF                  call    read_hex
+   230 0000011C E801FFFFFF                  call    print_eax
+   231 00000121 E8C1FFFFFF                  call    print_eax_binary
+   232                                  
+   233                                      ; Exit the process:
+   234 00000126 6A00                        push	0
+   235 00000128 E8(00000000)                call	exit
