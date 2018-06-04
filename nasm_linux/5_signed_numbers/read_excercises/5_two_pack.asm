@@ -37,14 +37,14 @@ section .text
 
 main:
 
-    call    read_hex
+    call    read_hex            ; ff01
     cmp     eax,0ffffh
     ja      exit_program
 
-    movsx   esi,al
-    movzx   eax,ah
+    movsx   esi,al              ; esi=01
+    movzx   eax,ah              ; eax=ff
 
-    imul    esi
+    imul    esi                 ; edx:eax=01*ff=ff
     call    print_eax
 
 exit_program:
