@@ -1,0 +1,1 @@
+mov [ecx+ecx*4], edx

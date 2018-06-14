@@ -1,0 +1,406 @@
+     1                                  ;     Dword picture
+     2                                      
+     3                                  ;     Given a dword x, we create a corresponding ASCII picture.
+     4                                  ;     We use the following procedure:
+     5                                  
+     6                                  ;     0.  We look at the binary representation of x, and divide it to pairs of
+     7                                  ;         bits. We then order the pairs of bits in a square of size 4 X 4.
+     8                                  
+     9                                  ;         Example: 
+    10                                  ;           For the dword 0xdeadbeef, we get:
+    11                                  ;           0xdeadbeef = 11011110101011011011111011101111
+    12                                  ;           0xdeadbeef = 11 01 11 10 10 10 11 01 10 11 11 10 11 10 11 11
+    13                                  
+    14                                  ;           Ordered in a square:
+    15                                            
+    16                                  ;           11 01 11 10
+    17                                  ;           10 10 11 01
+    18                                  ;           10 11 11 10
+    19                                  ;           11 10 11 11 
+    20                                  
+    21                                  ;     1.  Next we convert every pair of bits into one ASCII symbol, as follows:
+    22                                  
+    23                                  ;         00 -> *
+    24                                  ;         01 -> :
+    25                                  ;         10 -> #
+    26                                  ;         11 -> @
+    27                                  
+    28                                  ;         Example:
+    29                                  ;           For the dword 0xdeadbeef, we get the following interesting picture:
+    30                                  
+    31                                  ;           @:@#
+    32                                  ;           ##@:
+    33                                  ;           #@@#
+    34                                  ;           @#@@
+    35                                  
+    36                                  ;     Write a program that takes a dword x as input, and prints the corresponding
+    37                                  ;     picture representation as output.
+    38                                  
+    39                                  ;     HINT: Organize your program using functions:
+    40                                  
+    41                                  ;       - Create a function that transforms a number into the ASCII code of the
+    42                                  ;         corresponding symbol. {0 -> * , 1 -> : , 2 -> # , 3 -> @}
+    43                                  
+    44                                  ;       - Create a function that takes as arguments an address of a buffer and a
+    45                                  ;         number x. This function will fill the buffer with the resulting ascii
+    46                                  ;         picture. Make sure to leave room for the newline character sequences,
+    47                                  ;         and for the null terminator.
+    48                                  
+    49                                  ;       - Finally allocate a buffer on the bss section, read a number from the
+    50                                  ;         user and use the previous function to fill in the buffer on the bss
+    51                                  ;         section with the ASCII picture. Then print the ASCII picture to the
+    52                                  ;         user.
+    53                                  
+    54                                  BITS 32
+    55                                  global main
+    56                                  extern exit
+    57                                  
+    58                                  %include "training.s"
+    59                              <1> BITS 32
+    60                              <1> extern printf
+    61                              <1> extern exit
+    62                              <1> extern scanf
+    63                              <1> extern read
+    64                              <1> 
+    65                              <1> section .data 
+    66                              <1> 
+    67                              <1> ;Formats for printf and strings needed throughout
+    68 00000000 25780A00            <1> hex_new  db     "%x", 10, 0
+    69 00000004 257800              <1> hex_     db "%x", 0
+    70 00000007 256400              <1> dec_     db "%d", 0
+    71 0000000A 25640A00            <1> dec_new  db     "%d", 10, 0
+    72 0000000E 257300              <1> str_     db "%s", 0
+    73 00000011 0A00                <1> new_     db "", 10, 0
+    74 00000013 3D3D3D3D3D3D3D3D0A- <1> delim   db  "========",10,0
+    75 0000001C 00                  <1>
+    76                              <1> 
+    77                              <1> section .text
+    78                              <1> 
+    79                              <1> print_ebx:
+    80 00000000 60                  <1>     pushad
+    81 00000001 53                  <1>     push    ebx
+    82 00000002 68[00000000]        <1>     push    hex_new
+    83 00000007 E8(00000000)        <1>     call    printf
+    84 0000000C 83C408              <1>     add esp, 8
+    85 0000000F 61                  <1>     popad
+    86 00000010 C3                  <1>     ret
+    87                              <1> 
+    88                              <1> print_ebx_dec:
+    89 00000011 60                  <1>     pushad
+    90 00000012 53                  <1>     push    ebx
+    91 00000013 68[0A000000]        <1>     push    dec_new
+    92 00000018 E8(00000000)        <1>     call    printf
+    93 0000001D 83C408              <1>     add esp, 8
+    94 00000020 61                  <1>     popad
+    95 00000021 C3                  <1>     ret
+    96                              <1> 
+    97                              <1> ;prints value in eax in hex saves all registers
+    98                              <1> print_eax:
+    99 00000022 60                  <1>     pushad
+   100 00000023 50                  <1>     push    eax
+   101 00000024 68[00000000]        <1>     push    hex_new
+   102 00000029 E8(00000000)        <1>     call    printf
+   103 0000002E 83C408              <1>     add esp, 8
+   104 00000031 61                  <1>     popad
+   105 00000032 C3                  <1>     ret
+   106                              <1> 
+   107                              <1> ;prints value in eax in hex saves all registers
+   108                              <1> print_edx:
+   109 00000033 60                  <1>     pushad
+   110 00000034 52                  <1>     push    edx
+   111 00000035 68[00000000]        <1>     push    hex_new
+   112 0000003A E8(00000000)        <1>     call    printf
+   113 0000003F 83C408              <1>     add esp, 8
+   114 00000042 61                  <1>     popad
+   115 00000043 C3                  <1>     ret
+   116                              <1> 
+   117                              <1> print_edi:
+   118 00000044 60                  <1>     pushad
+   119 00000045 57                  <1>     push    edi
+   120 00000046 68[00000000]        <1>     push    hex_new
+   121 0000004B E8(00000000)        <1>     call    printf
+   122 00000050 83C408              <1>     add esp, 8
+   123 00000053 61                  <1>     popad
+   124 00000054 C3                  <1>     ret
+   125                              <1>     
+   126                              <1> ;prints value in eax in hex saves all registers
+   127                              <1> print_eax_dec:
+   128 00000055 60                  <1>     pushad
+   129 00000056 50                  <1>     push    eax
+   130 00000057 68[0A000000]        <1>     push    dec_new
+   131 0000005C E8(00000000)        <1>     call    printf
+   132 00000061 83C408              <1>     add esp, 8
+   133 00000064 61                  <1>     popad
+   134 00000065 C3                  <1>     ret
+   135                              <1> 
+   136                              <1> print_ecx:
+   137 00000066 60                  <1>     pushad
+   138 00000067 51                  <1>     push    ecx
+   139 00000068 68[00000000]        <1>     push    hex_new
+   140 0000006D E8(00000000)        <1>     call    printf
+   141 00000072 83C408              <1>     add esp, 8
+   142 00000075 61                  <1>     popad
+   143 00000076 C3                  <1>     ret
+   144                              <1> 
+   145                              <1> ;prints line splitter saves all registers
+   146                              <1> print_delimiter:
+   147 00000077 60                  <1>     pushad
+   148 00000078 B8[13000000]        <1>     mov eax, delim
+   149 0000007D 50                  <1>     push    eax
+   150 0000007E E8(00000000)        <1>     call    printf
+   151 00000083 83C404              <1>     add esp,4
+   152 00000086 61                  <1>     popad
+   153 00000087 C3                  <1>     ret
+   154                              <1> 
+   155                              <1> ;read ecx bytes into edi null terminate it all registers saved 
+   156                              <1> read_line:
+   157 00000088 60                  <1>     pushad
+   158 00000089 51                  <1>     push    ecx 
+   159 0000008A 57                  <1>     push    edi 
+   160 0000008B 6A00                <1>     push    0
+   161 0000008D E8(00000000)        <1>     call    read
+   162 00000092 83C40C              <1>     add esp, 12
+   163 00000095 31D2                <1>     xor edx, edx
+   164 00000097 C6040700            <1>     mov byte [edi+eax], 0
+   165 0000009B 61                  <1>     popad
+   166 0000009C C3                  <1>     ret
+   167                              <1> 
+   168                              <1> ; reads a hex value from stdin and stores it into eax ebx is not saved 
+   169                              <1> read_hex:
+   170 0000009D 55                  <1>     push    ebp
+   171 0000009E 89E5                <1>     mov     ebp, esp
+   172 000000A0 83EC04              <1>     sub     esp, 4
+   173                              <1>     ; Keep important registers.
+   174                              <1>     ; We can't use pusha here, because the result is inside eax.
+   175 000000A3 53                  <1>     push    ebx
+   176 000000A4 51                  <1>     push    ecx
+   177 000000A5 52                  <1>     push    edx
+   178                              <1> 
+   179 000000A6 8D5DFC              <1>     lea     ebx, [ebp-4]
+   180 000000A9 53                  <1>     push    ebx
+   181 000000AA 68[04000000]        <1>     push    hex_
+   182 000000AF E8(00000000)        <1>     call    scanf
+   183 000000B4 83C408              <1>     add     esp, 8
+   184 000000B7 8B03                <1>     mov     eax, [ebx]
+   185                              <1> 
+   186                              <1>     ; Restore registers:
+   187 000000B9 5A                  <1>     pop     edx
+   188 000000BA 59                  <1>     pop     ecx
+   189 000000BB 5B                  <1>     pop     ebx
+   190 000000BC C9                  <1>     leave
+   191 000000BD C3                  <1>     ret
+   192                              <1> 
+   193                              <1> ; reads a hex value from stdin and stores it into eax ebx is not saved 
+   194                              <1> read_dec:
+   195 000000BE 55                  <1>     push    ebp
+   196 000000BF 89E5                <1>     mov ebp, esp
+   197 000000C1 83EC04              <1>     sub esp, 4
+   198 000000C4 8D5DFC              <1>     lea ebx, [ebp-4]
+   199 000000C7 60                  <1>     pusha
+   200 000000C8 53                  <1>     push    ebx
+   201 000000C9 68[07000000]        <1>     push    dec_
+   202 000000CE E8(00000000)        <1>     call    scanf
+   203 000000D3 83C408              <1>     add esp, 8
+   204 000000D6 61                  <1>     popa
+   205 000000D7 8B03                <1>     mov eax, [ebx]
+   206 000000D9 C9                  <1>     leave
+   207 000000DA C3                  <1>     ret
+   208                              <1> 
+   209                              <1> ;prints string pointed to by esi saves all registers
+   210                              <1> print_str:
+   211 000000DB 60                  <1>     pushad
+   212 000000DC 56                  <1>     push    esi
+   213 000000DD E8(00000000)        <1>     call    printf
+   214 000000E2 83C404              <1>     add esp, 4
+   215 000000E5 61                  <1>     popad
+   216 000000E6 C3                  <1>     ret
+   217                              <1> 
+   218                              <1> ;prints eax in binary
+   219                              <1> print_eax_binary:
+   220 000000E7 60                  <1>     pushad
+   221 000000E8 B920000000          <1>     mov ecx,32 ; We print 32 digits.
+   222                              <1> 
+   223                              <1> .print_digit:
+   224 000000ED D1C0                <1>         rol eax,1
+   225 000000EF 89C2                <1>         mov edx,eax
+   226 000000F1 83E201              <1>         and edx,1
+   227                              <1> 
+   228 000000F4 51                  <1>         push ecx ; Keep ecx and eax.
+   229 000000F5 50                  <1>         push eax
+   230                              <1> 
+   231                              <1>         ; Print one digit:
+   232 000000F6 52                  <1>         push edx ; Digit to be printed.
+   233 000000F7 68[04000000]        <1>         push hex_ 
+   234 000000FC E8(00000000)        <1>         call printf
+   235 00000101 83C408              <1>         add esp,8
+   236                              <1> 
+   237 00000104 58                  <1>         pop eax ; Restore eax and ecx.
+   238 00000105 59                  <1>         pop ecx
+   239                              <1> 
+   240 00000106 E2E5                <1>         loop .print_digit
+   241 00000108 68[11000000]        <1>     push new_
+   242 0000010D E8(00000000)        <1>     call printf
+   243 00000112 83C404              <1>     add esp,4
+   244 00000115 61                  <1>     popad
+   245 00000116 C3                  <1>     ret
+   246                                  
+   247                                  section .data
+   248 0000001D 0A                          new_line: db 10
+   249                                  
+   250                                  section .bss
+   251 00000000 <res 00000004>              user_number: resd 1
+   252 00000004 <res 00000040>              symbol_string: resd 16
+   253 00000044 <res 0000006C>              picture: resd 16 + 10 + 1 ; 16 symbols + 4 line breaks + 1 terminator
+   254                                  
+   255                                  section .text
+   256                                  
+   257                                  main:
+   258                                  
+   259 00000117 C705[00000000]AFBE-         mov     dword [user_number], 0deadbeafh
+   260 0000011F ADDE               
+   261                                  
+   262 00000121 BE[00000000]                mov     esi, user_number
+   263 00000126 BF[04000000]                mov     edi, symbol_string
+   264 0000012B E85B000000                  call    transform
+   265                                  
+   266 00000130 BE[04000000]                mov     esi, symbol_string
+   267 00000135 BF[44000000]                mov     edi, picture
+   268 0000013A E811000000                  call    append_newlines_and_terminator
+   269                                  
+   270 0000013F BE[44000000]                mov     esi, picture
+   271 00000144 E892FFFFFF                  call    print_str
+   272                                  
+   273                                  
+   274 00000149 6A00                        push    0
+   275 0000014B E8(00000000)                call    exit
+   276                                  
+   277                                  append_newlines_and_terminator:
+   278                                  
+   279 00000150 60                          pushad
+   280                                  
+   281 00000151 B900000000                  mov     ecx, 0h     ; counter in orignal
+   282 00000156 BA00000000                  mov     edx, 0h     ; counter in result
+   283 0000015B BB04000000                  mov     ebx, 4h
+   284                                  
+   285                                  .iter:
+   286                                  
+   287 00000160 8B040E                      mov     eax, [esi+ecx]
+   288 00000163 890417                      mov     [edi+edx], eax
+   289                                  
+   290 00000166 52                          push    edx
+   291                                  
+   292 00000167 89C8                        mov     eax, ecx
+   293 00000169 83F800                      cmp     eax, 0
+   294 0000016C 7413                        je      .not_append_newline
+   295 0000016E 99                          cdq
+   296 0000016F F7F3                        div     ebx
+   297 00000171 83FA03                      cmp     edx, 3h
+   298                                  
+   299                                  
+   300 00000174 750B                        jne     .not_append_newline
+   301 00000176 5A                          pop     edx
+   302 00000177 42                          inc     edx
+   303 00000178 C704170A000000              mov     dword [edi+edx], 10
+   304 0000017F EB01                        jmp     .continue
+   305                                  
+   306                                  
+   307                                  .not_append_newline:
+   308                                  
+   309 00000181 5A                          pop     edx
+   310                                  
+   311                                  .continue:
+   312                                  
+   313 00000182 42                          inc     edx
+   314 00000183 41                          inc     ecx
+   315 00000184 83F916                      cmp     ecx, 16h
+   316 00000187 75D7                        jne     .iter
+   317                                  
+   318 00000189 61                          popad
+   319                                  
+   320 0000018A C3                          ret
+   321                                  
+   322                                  
+   323                                  transform:
+   324                                  
+   325 0000018B 51                          push    ecx
+   326 0000018C 50                          push    eax
+   327 0000018D 52                          push    edx
+   328 0000018E 53                          push    ebx
+   329                                  
+   330 0000018F B900000000                  mov     ecx, 0d            ; ecx - shift counter
+   331 00000194 8B1E                        mov     ebx, [esi]          ; ebx - number
+   332                                      
+   333                                  
+   334                                  .next_symbol:
+   335                                  
+   336 00000196 31C0                        xor     eax, eax            ; eax - current 2 bits
+   337                                  
+   338 00000198 BA00000080                  mov     edx, 10000000000000000000000000000000b
+   339 0000019D 21DA                        and     edx, ebx
+   340 0000019F 81FA00000080                cmp     edx, 10000000000000000000000000000000b
+   341 000001A5 7503                        jne     .skip_10
+   342 000001A7 83C002                      add     eax, 10b
+   343                                  
+   344                                  .skip_10:
+   345                                  
+   346 000001AA D1E3                        shl     ebx, 1h
+   347 000001AC BA00000080                  mov     edx, 10000000000000000000000000000000b
+   348 000001B1 21DA                        and     edx, ebx
+   349 000001B3 81FA00000080                cmp     edx, 10000000000000000000000000000000b
+   350 000001B9 7503                        jne     .skip_01
+   351 000001BB 83C001                      add     eax, 1b
+   352                                  
+   353                                  .skip_01:
+   354                                  
+   355 000001BE D1E3                        shl     ebx, 1h
+   356                                      
+   357 000001C0 E80E000000                  call    map_number_to_symbol
+   358 000001C5 89040F                      mov     [edi+ecx], eax
+   359                                  
+   360 000001C8 41                          inc     ecx
+   361 000001C9 83F910                      cmp     ecx, 16d
+   362 000001CC 75C8                        jne     .next_symbol
+   363                                      
+   364 000001CE 5B                          pop     ebx
+   365 000001CF 5A                          pop     edx
+   366 000001D0 58                          pop     eax
+   367 000001D1 59                          pop     ecx
+   368 000001D2 C3                          ret
+   369                                  
+   370                                  
+   371                                  ; Return a symbol basing on the number in the eax.
+   372                                  map_number_to_symbol:
+   373 000001D3 83F800                      cmp     eax,    0h
+   374 000001D6 740F                        je      .star
+   375                                  
+   376 000001D8 83F801                      cmp     eax,    1h
+   377 000001DB 7411                        je      .colon
+   378                                  
+   379 000001DD 83F802                      cmp     eax,    2h
+   380 000001E0 7413                        je      .sharp
+   381                                  
+   382 000001E2 83F803                      cmp     eax,    3h
+   383 000001E5 7415                        je      .at
+   384                                  
+   385                                  .star:
+   386 000001E7 B82A000000                  mov     eax, '*'
+   387 000001EC EB15                        jmp     .end
+   388                                  
+   389                                  .colon:
+   390 000001EE B83A000000                  mov     eax, ':'
+   391 000001F3 EB0E                        jmp     .end
+   392                                  
+   393                                  .sharp:
+   394 000001F5 B823000000                  mov     eax, '#'
+   395 000001FA EB07                        jmp     .end
+   396                                  
+   397                                  .at:
+   398 000001FC B840000000                  mov     eax, '@'
+   399 00000201 EB00                        jmp     .end
+   400                                  
+   401                                  .end:
+   402                                  
+   403 00000203 C3                          ret
+   404                                  
+   405                                  
+   406                                  

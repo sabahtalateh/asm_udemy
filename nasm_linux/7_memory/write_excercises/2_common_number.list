@@ -1,0 +1,290 @@
+     1                                  ;Common number.
+     2                                  ;
+     3                                  ;    Create a program that takes a number n as input, followed by a list of n
+     4                                  ;    numbers b_1, b_2, ... b_n. You may assume that 0x0 <= b_i <= 0xff for every
+     5                                  ;    1 <= i <= n.
+     6                                  ;
+     7                                  ;    The program will output the most common number.
+     8                                  ;
+     9                                  ;    Example:
+    10                                  ;
+    11                                  ;    Assume that the input was n=7, followed by the list: 1,5,1,3,5,5,2.
+    12                                  ;    The program will output 5, because this is the most common number.
+    13                                  ;
+    14                                  ;    Note that if there is more than one most common number, the program will
+    15                                  ;    just print one of the most common numbers.
+    16                                  
+    17                                  BITS 32
+    18                                  global main
+    19                                  
+    20                                  %include "training.s"
+    21                              <1> BITS 32
+    22                              <1> extern printf
+    23                              <1> extern exit
+    24                              <1> extern scanf
+    25                              <1> extern read
+    26                              <1> 
+    27                              <1> section .data 
+    28                              <1> 
+    29                              <1> ;Formats for printf and strings needed throughout
+    30 00000000 25780A00            <1> hex_new  db     "%x", 10, 0
+    31 00000004 257800              <1> hex_     db "%x", 0
+    32 00000007 256400              <1> dec_     db "%d", 0
+    33 0000000A 25640A00            <1> dec_new  db     "%d", 10, 0
+    34 0000000E 257300              <1> str_     db "%s", 0
+    35 00000011 0A00                <1> new_     db "", 10, 0
+    36 00000013 3D3D3D3D3D3D3D3D0A- <1> delim   db  "========",10,0
+    37 0000001C 00                  <1>
+    38                              <1> 
+    39                              <1> section .text
+    40                              <1> 
+    41                              <1> print_ebx:
+    42 00000000 60                  <1>     pushad
+    43 00000001 53                  <1>     push    ebx
+    44 00000002 68[00000000]        <1>     push    hex_new
+    45 00000007 E8(00000000)        <1>     call    printf
+    46 0000000C 83C408              <1>     add esp, 8
+    47 0000000F 61                  <1>     popad
+    48 00000010 C3                  <1>     ret
+    49                              <1> 
+    50                              <1> print_ebx_dec:
+    51 00000011 60                  <1>     pushad
+    52 00000012 53                  <1>     push    ebx
+    53 00000013 68[0A000000]        <1>     push    dec_new
+    54 00000018 E8(00000000)        <1>     call    printf
+    55 0000001D 83C408              <1>     add esp, 8
+    56 00000020 61                  <1>     popad
+    57 00000021 C3                  <1>     ret
+    58                              <1> 
+    59                              <1> ;prints value in eax in hex saves all registers
+    60                              <1> print_eax:
+    61 00000022 60                  <1>     pushad
+    62 00000023 50                  <1>     push    eax
+    63 00000024 68[00000000]        <1>     push    hex_new
+    64 00000029 E8(00000000)        <1>     call    printf
+    65 0000002E 83C408              <1>     add esp, 8
+    66 00000031 61                  <1>     popad
+    67 00000032 C3                  <1>     ret
+    68                              <1> 
+    69                              <1> ;prints value in eax in hex saves all registers
+    70                              <1> print_edx:
+    71 00000033 60                  <1>     pushad
+    72 00000034 52                  <1>     push    edx
+    73 00000035 68[00000000]        <1>     push    hex_new
+    74 0000003A E8(00000000)        <1>     call    printf
+    75 0000003F 83C408              <1>     add esp, 8
+    76 00000042 61                  <1>     popad
+    77 00000043 C3                  <1>     ret
+    78                              <1> 
+    79                              <1> print_edi:
+    80 00000044 60                  <1>     pushad
+    81 00000045 57                  <1>     push    edi
+    82 00000046 68[00000000]        <1>     push    hex_new
+    83 0000004B E8(00000000)        <1>     call    printf
+    84 00000050 83C408              <1>     add esp, 8
+    85 00000053 61                  <1>     popad
+    86 00000054 C3                  <1>     ret
+    87                              <1>     
+    88                              <1> ;prints value in eax in hex saves all registers
+    89                              <1> print_eax_dec:
+    90 00000055 60                  <1>     pushad
+    91 00000056 50                  <1>     push    eax
+    92 00000057 68[0A000000]        <1>     push    dec_new
+    93 0000005C E8(00000000)        <1>     call    printf
+    94 00000061 83C408              <1>     add esp, 8
+    95 00000064 61                  <1>     popad
+    96 00000065 C3                  <1>     ret
+    97                              <1> 
+    98                              <1> print_ecx:
+    99 00000066 60                  <1>     pushad
+   100 00000067 51                  <1>     push    ecx
+   101 00000068 68[00000000]        <1>     push    hex_new
+   102 0000006D E8(00000000)        <1>     call    printf
+   103 00000072 83C408              <1>     add esp, 8
+   104 00000075 61                  <1>     popad
+   105 00000076 C3                  <1>     ret
+   106                              <1> 
+   107                              <1> ;prints line splitter saves all registers
+   108                              <1> print_delimiter:
+   109 00000077 60                  <1>     pushad
+   110 00000078 B8[13000000]        <1>     mov eax, delim
+   111 0000007D 50                  <1>     push    eax
+   112 0000007E E8(00000000)        <1>     call    printf
+   113 00000083 83C404              <1>     add esp,4
+   114 00000086 61                  <1>     popad
+   115 00000087 C3                  <1>     ret
+   116                              <1> 
+   117                              <1> ;read ecx bytes into edi null terminate it all registers saved 
+   118                              <1> read_line:
+   119 00000088 60                  <1>     pushad
+   120 00000089 51                  <1>     push    ecx 
+   121 0000008A 57                  <1>     push    edi 
+   122 0000008B 6A00                <1>     push    0
+   123 0000008D E8(00000000)        <1>     call    read
+   124 00000092 83C40C              <1>     add esp, 12
+   125 00000095 31D2                <1>     xor edx, edx
+   126 00000097 C6040700            <1>     mov byte [edi+eax], 0
+   127 0000009B 61                  <1>     popad
+   128 0000009C C3                  <1>     ret
+   129                              <1> 
+   130                              <1> ; reads a hex value from stdin and stores it into eax ebx is not saved 
+   131                              <1> read_hex:
+   132 0000009D 55                  <1>     push    ebp
+   133 0000009E 89E5                <1>     mov     ebp, esp
+   134 000000A0 83EC04              <1>     sub     esp, 4
+   135                              <1>     ; Keep important registers.
+   136                              <1>     ; We can't use pusha here, because the result is inside eax.
+   137 000000A3 53                  <1>     push    ebx
+   138 000000A4 51                  <1>     push    ecx
+   139 000000A5 52                  <1>     push    edx
+   140                              <1> 
+   141 000000A6 8D5DFC              <1>     lea     ebx, [ebp-4]
+   142 000000A9 53                  <1>     push    ebx
+   143 000000AA 68[04000000]        <1>     push    hex_
+   144 000000AF E8(00000000)        <1>     call    scanf
+   145 000000B4 83C408              <1>     add     esp, 8
+   146 000000B7 8B03                <1>     mov     eax, [ebx]
+   147                              <1> 
+   148                              <1>     ; Restore registers:
+   149 000000B9 5A                  <1>     pop     edx
+   150 000000BA 59                  <1>     pop     ecx
+   151 000000BB 5B                  <1>     pop     ebx
+   152 000000BC C9                  <1>     leave
+   153 000000BD C3                  <1>     ret
+   154                              <1> 
+   155                              <1> ; reads a hex value from stdin and stores it into eax ebx is not saved 
+   156                              <1> read_dec:
+   157 000000BE 55                  <1>     push    ebp
+   158 000000BF 89E5                <1>     mov ebp, esp
+   159 000000C1 83EC04              <1>     sub esp, 4
+   160 000000C4 8D5DFC              <1>     lea ebx, [ebp-4]
+   161 000000C7 60                  <1>     pusha
+   162 000000C8 53                  <1>     push    ebx
+   163 000000C9 68[07000000]        <1>     push    dec_
+   164 000000CE E8(00000000)        <1>     call    scanf
+   165 000000D3 83C408              <1>     add esp, 8
+   166 000000D6 61                  <1>     popa
+   167 000000D7 8B03                <1>     mov eax, [ebx]
+   168 000000D9 C9                  <1>     leave
+   169 000000DA C3                  <1>     ret
+   170                              <1> 
+   171                              <1> ;prints string pointed to by esi saves all registers
+   172                              <1> print_str:
+   173 000000DB 60                  <1>     pushad
+   174 000000DC 56                  <1>     push    esi
+   175 000000DD E8(00000000)        <1>     call    printf
+   176 000000E2 83C404              <1>     add esp, 4
+   177 000000E5 61                  <1>     popad
+   178 000000E6 C3                  <1>     ret
+   179                              <1> 
+   180                              <1> ;prints eax in binary
+   181                              <1> print_eax_binary:
+   182 000000E7 60                  <1>     pushad
+   183 000000E8 B920000000          <1>     mov ecx,32 ; We print 32 digits.
+   184                              <1> 
+   185                              <1> .print_digit:
+   186 000000ED D1C0                <1>         rol eax,1
+   187 000000EF 89C2                <1>         mov edx,eax
+   188 000000F1 83E201              <1>         and edx,1
+   189                              <1> 
+   190 000000F4 51                  <1>         push ecx ; Keep ecx and eax.
+   191 000000F5 50                  <1>         push eax
+   192                              <1> 
+   193                              <1>         ; Print one digit:
+   194 000000F6 52                  <1>         push edx ; Digit to be printed.
+   195 000000F7 68[04000000]        <1>         push hex_ 
+   196 000000FC E8(00000000)        <1>         call printf
+   197 00000101 83C408              <1>         add esp,8
+   198                              <1> 
+   199 00000104 58                  <1>         pop eax ; Restore eax and ecx.
+   200 00000105 59                  <1>         pop ecx
+   201                              <1> 
+   202 00000106 E2E5                <1>         loop .print_digit
+   203 00000108 68[11000000]        <1>     push new_
+   204 0000010D E8(00000000)        <1>     call printf
+   205 00000112 83C404              <1>     add esp,4
+   206 00000115 61                  <1>     popad
+   207 00000116 C3                  <1>     ret
+   208                                  
+   209                                  MAX_NUMS equ 100
+   210                                  
+   211                                  section .bss
+   212 00000000 <res 00000064>              nums: resb MAX_NUMS
+   213 00000064 <res 00000064>              nums_count: resb MAX_NUMS
+   214                                  
+   215                                  section .text
+   216                                  
+   217                                  main:
+   218                                  
+   219 00000117 B807000000                  mov     eax, 7h
+   220 0000011C 89C1                        mov     ecx, eax
+   221 0000011E 83F964                      cmp     ecx, MAX_NUMS
+   222 00000121 7C05                        jl      skip_set_max
+   223 00000123 B964000000                  mov     ecx, MAX_NUMS
+   224                                  
+   225                                  skip_set_max:
+   226                                  
+   227 00000128 31D2                        xor     edx, edx                            ; edx - different numbers filled
+   228                                  
+   229                                  read_number:
+   230                                  
+   231 0000012A E86EFFFFFF                  call    read_hex                            
+   232 0000012F 89C3                        mov     ebx, eax                            ; ebx - currently typed number 
+   233                                  
+   234 00000131 89D6                        mov     esi, edx                            ; esi - index of the same number
+   235                                  
+   236                                  try_find_same_number:
+   237                                  
+   238 00000133 83FE00                      cmp     esi, 0
+   239 00000136 7C1D                        jl      insert_new_number
+   240                                  
+   241 00000138 3B1CB5[00000000]            cmp     ebx, [nums + esi*4]
+   242 0000013F 7403                        je      update_counter_at_esi
+   243 00000141 4E                          dec     esi
+   244 00000142 EBEF                        jmp     try_find_same_number
+   245                                  
+   246                                  update_counter_at_esi:
+   247                                  
+   248 00000144 8B04B5[64000000]            mov     eax, [nums_count + esi*4]
+   249 0000014B 40                          inc     eax
+   250 0000014C 8904B5[64000000]            mov     [nums_count + esi*4], eax
+   251 00000153 EB13                        jmp     continue
+   252                                  
+   253                                  insert_new_number:
+   254                                  
+   255 00000155 891C95[00000000]            mov     dword [nums + edx*4], ebx
+   256 0000015C C70495[64000000]01-         mov     dword [nums_count + edx*4], 1
+   257 00000164 000000             
+   258                                  
+   259 00000167 42                          inc     edx
+   260                                  
+   261                                  continue:
+   262                                  
+   263 00000168 E2C0                        loop    read_number
+   264                                  
+   265                                      ; Find max count
+   266 0000016A 8B35[64000000]              mov     esi, [nums_count]                   ; esi - first value in count array
+   267 00000170 89D1                        mov     ecx, edx
+   268 00000172 BF00000000                  mov     edi, 0                              ; edi - max index
+   269                                  
+   270                                  find_max_iter:
+   271                                  
+   272 00000177 49                          dec     ecx
+   273 00000178 8B048D[64000000]            mov     eax, [nums_count + ecx*4]
+   274                                  
+   275 0000017F 39F0                        cmp     eax, esi
+   276 00000181 7C04                        jl      not_greater
+   277 00000183 89C6                        mov     esi, eax
+   278 00000185 89CF                        mov     edi, ecx
+   279                                  
+   280                                  not_greater:
+   281                                      
+   282 00000187 83F901                      cmp     ecx, 1
+   283 0000018A 7DEB                        jge     find_max_iter
+   284                                  
+   285 0000018C 8B04BD[00000000]            mov     eax, [nums + edi*4]
+   286 00000193 E88AFEFFFF                  call    print_eax
+   287                                  
+   288                                      ; Exit the process:
+   289 00000198 6A00                        push	0
+   290 0000019A E8(00000000)                call	exit
